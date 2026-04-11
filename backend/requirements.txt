@@ -1,0 +1,26 @@
+# Orchestration
+langgraph==0.2.28
+langchain==0.3.7
+langchain-groq==0.2.1
+langchain-google-genai==2.0.7
+langchain-ollama==0.2.1
+langchain-community==0.3.7
+langchain-chroma==0.1.4
+
+# Vector store
+chromadb==0.5.18
+
+# API
+fastapi==0.115.5
+uvicorn==0.32.1
+python-multipart==0.0.12
+pydantic==2.9.2
+
+# PDF & document parsing
+pypdf==5.1.0
+pdfplumber==0.11.4
+
+# Utilities
+python-dotenv==1.0.1
+httpx==0.27.2
+requests==2.32.3
