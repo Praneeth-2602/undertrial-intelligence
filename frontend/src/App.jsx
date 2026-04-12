@@ -4,6 +4,7 @@ import Header from './components/Header'
 import AnalysisPage from './pages/AnalysisPage'
 import KnowledgePage from './pages/KnowledgePage'
 import AboutPage from './pages/AboutPage'
+import ReviewPage from './pages/ReviewPage'
 import { healthCheck } from './lib/api'
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
       <Header serverStatus={serverStatus} />
       <Routes>
         <Route path="/" element={<AnalysisPage />} />
+        <Route path="/review" element={<ReviewPage />} />
         <Route path="/knowledge" element={<KnowledgePage />} />
         <Route path="/about" element={<AboutPage />} />
       </Routes>
