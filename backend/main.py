@@ -5,6 +5,7 @@ import tempfile, os, shutil
 from typing import Optional
 
 from agents.graph import analyze_case
+from review_routes import router as review_router
 from rag.pipeline import (
     ingest_pdf,
     ingest_case_details,
@@ -26,6 +27,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(review_router)
 
 # ── Request / Response models ─────────────────────────────────────────────────
 
