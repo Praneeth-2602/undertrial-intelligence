@@ -13,12 +13,18 @@ const TABS = [
 
 export default function BriefViewer({ result }) {
   const [tab, setTab] = useState('brief')
+  const summaryLanguages = getSummaryLanguages(result)
+  const [summaryLanguage, setSummaryLanguage] = useState(() => {
+    const preferred = result.family_language
+    return summaryLanguages.includes(preferred) ? preferred : summaryLanguages[0]
+  })
   const retrievedSources = Array.isArray(result.retrieved_sources) ? result.retrieved_sources : []
   const revisionHistory = Array.isArray(result.revision_history) ? result.revision_history : []
+  const summaryContent = getSummaryContent(result, summaryLanguage)
 
   const content = {
     brief: result.final_brief,
-    summary: result.plain_summary,
+    summary: summaryContent,
     eligibility: result.eligibility_report,
     rights: result.rights_report,
     critic: result.critic_feedback,
@@ -109,13 +115,27 @@ export default function BriefViewer({ result }) {
         {tab === 'summary' ? (
           <div className={styles.summaryCard}>
             <div className={styles.summaryHeader}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              Plain-language summary for the accused's family
+              <div className={styles.summaryTitle}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                Plain-language summary for the accused's family
+              </div>
+              <div className={styles.languagePicker} role="tablist" aria-label="Summary language">
+                {summaryLanguages.map((language) => (
+                  <button
+                    key={language}
+                    type="button"
+                    className={`${styles.languagePill} ${summaryLanguage === language ? styles.languagePillActive : ''}`}
+                    onClick={() => setSummaryLanguage(language)}
+                  >
+                    {language}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className={`prose ${styles.summaryProse}`}>
-              <ReactMarkdown>{result.plain_summary}</ReactMarkdown>
+              <ReactMarkdown>{summaryContent}</ReactMarkdown>
             </div>
           </div>
         ) : tab === 'sources' ? (
@@ -137,6 +157,24 @@ export default function BriefViewer({ result }) {
       </div>
     </div>
   )
+}
+
+function getSummaryLanguages(result) {
+  const localized = result.localized_summaries && typeof result.localized_summaries === 'object'
+    ? Object.keys(result.localized_summaries).filter((key) => result.localized_summaries[key])
+    : []
+
+  if (localized.length > 0) return localized
+  if (result.family_language && result.family_language !== 'English') return ['English', result.family_language]
+  return ['English']
+}
+
+function getSummaryContent(result, language) {
+  const localized = result.localized_summaries && typeof result.localized_summaries === 'object'
+    ? result.localized_summaries
+    : {}
+
+  return localized[language] || localized.English || result.plain_summary || '*No summary available.*'
 }
 
 function SourcesPanel({ result }) {

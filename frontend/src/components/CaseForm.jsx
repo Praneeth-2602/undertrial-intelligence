@@ -26,6 +26,20 @@ const STATES = [
     'Delhi', 'Jammu & Kashmir',
 ]
 
+const FAMILY_LANGUAGES = [
+    'English',
+    'Hindi',
+    'Marathi',
+    'Bengali',
+    'Tamil',
+    'Telugu',
+    'Kannada',
+    'Malayalam',
+    'Gujarati',
+    'Punjabi',
+    'Urdu',
+]
+
 const DEFAULTS = {
     case_id: '',
     accused_name: '',
@@ -34,6 +48,7 @@ const DEFAULTS = {
     detention_days: '',
     court: '',
     state: 'Maharashtra',
+    family_language: 'Hindi',
     custom_charge: '',
 }
 
@@ -83,6 +98,7 @@ export default function CaseForm({ onSubmit, loading }) {
             detention_days: parseInt(form.detention_days, 10),
             court: form.court.trim(),
             state: form.state,
+            family_language: form.family_language,
         })
     }
 
@@ -213,6 +229,11 @@ export default function CaseForm({ onSubmit, loading }) {
                     <Field label="State" required error={errors.state}>
                         <select value={form.state} onChange={(event) => set('state', event.target.value)}>
                             {STATES.map((state) => <option key={state}>{state}</option>)}
+                        </select>
+                    </Field>
+                    <Field label="Family Summary Language">
+                        <select value={form.family_language} onChange={(event) => set('family_language', event.target.value)}>
+                            {FAMILY_LANGUAGES.map((language) => <option key={language}>{language}</option>)}
                         </select>
                     </Field>
                 </div>

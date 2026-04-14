@@ -40,6 +40,7 @@ class CaseRequest(BaseModel):
     detention_days: int
     court: str
     state: str
+    family_language: str = "English"
 
 class AnalysisResponse(BaseModel):
     case_id: str
@@ -47,6 +48,8 @@ class AnalysisResponse(BaseModel):
     rights_report: str
     final_brief: str
     plain_summary: str
+    family_language: str
+    localized_summaries: dict[str, str]
     critic_feedback: str
     critic_verdict: str
     revisions_done: int

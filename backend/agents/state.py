@@ -10,6 +10,7 @@ class CaseInput(TypedDict):
     detention_days: int
     court: str
     state: str
+    family_language: str
 
 
 class SourceRecord(TypedDict):
@@ -49,6 +50,7 @@ class AgentState(TypedDict):
     # Final output
     final_brief: str
     plain_summary: str
+    localized_summaries: dict[str, str]
 
     # Shared retrieved context
     retrieved_sources: Annotated[list[SourceRecord], operator.add]

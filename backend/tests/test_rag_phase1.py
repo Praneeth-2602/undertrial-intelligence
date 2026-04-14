@@ -51,6 +51,7 @@ SAMPLE_CASE = {
     "detention_days": 200,
     "court": "Sessions Court",
     "state": "Maharashtra",
+    "family_language": "Hindi",
 }
 
 SAMPLE_SOURCE: dict = {
@@ -75,6 +76,7 @@ SAMPLE_AGENT_STATE = {
     "revision_history": [],
     "final_brief": "",
     "plain_summary": "",
+    "localized_summaries": {"English": ""},
     "retrieved_sources": [SAMPLE_SOURCE],
     "eligibility_sources": [],
     "rights_sources": [],
@@ -271,6 +273,7 @@ class TestAnalyzeCase(unittest.TestCase):
             "advocate_draft": "Draft",
             "final_brief": "Final",
             "plain_summary": "Summary",
+            "localized_summaries": {"English": "Summary", "Hindi": "सारांश"},
             "critic_feedback": "VERDICT: APPROVE",
             "critic_verdict": "APPROVE",
             "revision_count": 1,
@@ -284,7 +287,8 @@ class TestAnalyzeCase(unittest.TestCase):
 
         required = [
             "case_id", "eligibility_report", "rights_report", "final_brief",
-            "plain_summary", "critic_feedback", "critic_verdict", "revisions_done",
+            "plain_summary", "family_language", "localized_summaries",
+            "critic_feedback", "critic_verdict", "revisions_done",
             "retrieved_sources", "eligibility_sources", "rights_sources", "revision_history",
         ]
         for field in required:
@@ -295,7 +299,7 @@ class TestAnalyzeCase(unittest.TestCase):
             "eligibility_report": "E", "rights_report": "R",
             "advocate_draft": "Fallback draft",
             "final_brief": "",  # empty — should fall back
-            "plain_summary": "S", "critic_feedback": "FB", "critic_verdict": "REVISE",
+            "plain_summary": "S", "localized_summaries": {"English": "S"}, "critic_feedback": "FB", "critic_verdict": "REVISE",
             "revision_count": 0, "retrieved_sources": [], "eligibility_sources": [],
             "rights_sources": [], "revision_history": [],
         }
@@ -322,6 +326,8 @@ class TestAPISmoke(unittest.TestCase):
             "rights_report": "Rights",
             "final_brief": "Final",
             "plain_summary": "Summary",
+            "family_language": "Hindi",
+            "localized_summaries": {"English": "Summary", "Hindi": "सारांश"},
             "critic_feedback": "VERDICT: APPROVE",
             "critic_verdict": "APPROVE",
             "revisions_done": 1,
@@ -334,8 +340,11 @@ class TestAPISmoke(unittest.TestCase):
             resp = client.post("/analyze", json=SAMPLE_CASE)
 
         self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200)
         body = resp.json()
         self.assertEqual(body["critic_verdict"], "APPROVE")
+        self.assertEqual(body["family_language"], "Hindi")
+        self.assertIn("Hindi", body["localized_summaries"])
         self.assertIn("retrieved_sources", body)
         self.assertIn("revision_history", body)
 
@@ -354,7 +363,8 @@ class TestAPISmoke(unittest.TestCase):
     def test_retrieval_diagnose_endpoint(self):
         mock_docs = [Document(page_content="Test content", metadata={"title": "T", "category": "statute", "source": "s", "court": ""})]
         mock_diagnostics = [{"title": "T", "category": "statute", "source": "s", "similarity": 0.8, "authority_score": 1.0, "combined": 0.87}]
-        with patch("main.retrieve_with_scores", return_value=(mock_docs, mock_diagnostics)):
+        with patch("main.retrieve_with_scores", return_value=(mock_docs, mock_diagnostics)), \
+             patch("main.log_retrieval_diagnostics"):
             resp = client.get("/retrieval/diagnose", params={"query": "section 436A bail"})
         self.assertEqual(resp.status_code, 200)
         body = resp.json()
